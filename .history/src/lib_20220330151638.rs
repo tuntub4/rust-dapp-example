@@ -8,16 +8,16 @@ near_sdk::setup_alloc!();
 //by default, creating a new cargo package will include main.rs
 //this must be renamed to lib.rs so that the file will be treated as a library
 
-#[near_bindgen] //wraps struct to generate a NEAR compatible smart contract
+#[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)] 
 pub struct StatusMessage { //In Rust, the struct and its data fields are defined first, and methods are implemented later
-    records: LookupMap<String, String>, //map to store records
+    records: LookupMap<String, String>, //hashmap to hold status message records
 }
 
-impl Default for StatusMessage { //default can be disabled, but is expected
+impl Default for StatusMessage { //default impl not required, but provides an initial state
     fn default() -> Self {
         Self {
-            records: LookupMap::new(b"r".to_vec()),
+            records: LookupMap::new(b"r".to_vec()), //what is this?
         }
     }
 }
@@ -27,22 +27,21 @@ impl StatusMessage {
     pub fn set_status(&mut self, message: String) {
         let account_id = env::signer_account_id(); 
         //env is used to access data such as the signer account id, account balance, or other smart-contract-specific data
-        self.records.insert(&account_id, &message); //passing references to LookupMap::insert(AccountId, String), doesn't require copying data
-        //inserts key-value pair into map
+        self.records.insert(&account_id, &message);
     }
 
     pub fn get_status(&self, account_id: String) -> Option<String> {
-        return self.records.get(&account_id); //returns the value associated with the account_id key
+        return self.records.get(&account_id);
     }
 }
 
-#[cfg(not(target_arch = "wasm32"))] //conditional compilation flags used to specify testing
-#[cfg(test)] //test macro
+#[cfg(not(target_arch = "wasm32"))]
+#[cfg(test)]
 mod tests {
     use super::*;
     use near_sdk::MockedBlockchain;
     use near_sdk::{testing_env, VMContext};
-    //used to set up a simulation environment
+
     fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
         VMContext {
             current_account_id: "alice_near".to_string(),
@@ -66,14 +65,14 @@ mod tests {
 
     #[test]
     fn set_get_message() {
-        let context = get_context(vec![], false); //get VMNcontext
-        testing_env!(context); //set testing environment
-        let mut contract = StatusMessage::default(); //instantiate default StatusMessage struct
-        contract.set_status("hello".to_string()); //set status to "hello"
+        let context = get_context(vec![], false);
+        testing_env!(context);
+        let mut contract = StatusMessage::default();
+        contract.set_status("hello".to_string());
         assert_eq!(
             "hello".to_string(),
             contract.get_status("bob_near".to_string()).unwrap()
-        ); //asserts that contract status is equal to "hello", and passes test if true
+        );
     }
 
     #[test]
@@ -81,11 +80,6 @@ mod tests {
         let context = get_context(vec![], true);
         testing_env!(context);
         let contract = StatusMessage::default();
-        assert_eq!(None, contract.get_status("francis.near".to_string())); //important to note that None has a type in Rust
+        assert_eq!(None, contract.get_status("francis.near".to_string()));
     }
-    //Testing Process
-    //1. set up context
-    //2. instantiate struct
-    //3. call methods
-    //4. assert equality
 }

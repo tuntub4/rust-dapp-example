@@ -8,16 +8,16 @@ near_sdk::setup_alloc!();
 //by default, creating a new cargo package will include main.rs
 //this must be renamed to lib.rs so that the file will be treated as a library
 
-#[near_bindgen] //wraps struct to generate a NEAR compatible smart contract
+#[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)] 
 pub struct StatusMessage { //In Rust, the struct and its data fields are defined first, and methods are implemented later
     records: LookupMap<String, String>, //map to store records
 }
 
-impl Default for StatusMessage { //default can be disabled, but is expected
+impl Default for StatusMessage { //default impl not required, but provides an initial state
     fn default() -> Self {
         Self {
-            records: LookupMap::new(b"r".to_vec()),
+            records: LookupMap::new(b"r".to_vec()), //what is this?
         }
     }
 }
@@ -27,7 +27,7 @@ impl StatusMessage {
     pub fn set_status(&mut self, message: String) {
         let account_id = env::signer_account_id(); 
         //env is used to access data such as the signer account id, account balance, or other smart-contract-specific data
-        self.records.insert(&account_id, &message); //passing references to LookupMap::insert(AccountId, String), doesn't require copying data
+        self.records.insert(&account_id, &message); //passing references to LookupMap::insert(String, String), doesn't require copying data
         //inserts key-value pair into map
     }
 

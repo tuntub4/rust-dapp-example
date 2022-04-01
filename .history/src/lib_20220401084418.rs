@@ -17,7 +17,7 @@ pub struct StatusMessage { //In Rust, the struct and its data fields are defined
 impl Default for StatusMessage { //default can be disabled, but is expected
     fn default() -> Self {
         Self {
-            records: LookupMap::new(b"r".to_vec()),
+            records: LookupMap::new(b"r".to_vec()), //what is this?
         }
     }
 }
