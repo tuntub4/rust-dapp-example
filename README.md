@@ -1,3 +1,5 @@
+Demo used in Rust Intro presentation for Near Web Series, adapted from example on near.dev
+
 Status Message
 ==============
 
